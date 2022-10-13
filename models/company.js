@@ -1,7 +1,7 @@
 "use strict";
 
 const db = require("../db");
-const { BadRequestError, NotFoundError } = require("../expressError");
+const { BadRequestError, NotFoundError, ExpressError } = require("../expressError");
 const { sqlForPartialUpdate } = require("../helpers/sql");
 
 /** Related functions for companies. */
@@ -47,18 +47,50 @@ class Company {
   /** Find all companies.
    *
    * Returns [{ handle, name, description, numEmployees, logoUrl }, ...]
+   * Can filter by name, minimum number of employees and maximum number of employees
    * */
 
-  static async findAll() {
+  static async findAll({name, minEmployees, maxEmployees}) {
+    if (+minEmployees > +maxEmployees){
+      throw new ExpressError('min cannot be bigger than max', 404);
+    }
 
-    const companiesRes = await db.query(
-          `SELECT handle,
-                  name,
-                  description,
-                  num_employees AS "numEmployees",
-                  logo_url AS "logoUrl"
-           FROM companies
-           ORDER BY name`);
+    let baseQuery = `
+    SELECT handle,
+      name,
+      description,
+      num_employees AS "numEmployees",
+      logo_url AS "logoUrl"
+    FROM companies `;
+    let queryVariables = [];
+    let whereClauses = [];
+
+    if (name){
+      queryVariables.push(`%${name}%`);
+      whereClauses.push(`name ILIKE $${queryVariables.length}`);
+    }
+
+    if (minEmployees && !maxEmployees){
+      queryVariables.push(+minEmployees);
+      whereClauses.push(`num_employees >= $${queryVariables.length}`);
+    }
+    
+    if (!minEmployees && maxEmployees){
+      queryVariables.push(+maxEmployees);
+      whereClauses.push(`num_employees <= $${queryVariables.length}`);
+    }
+
+    if (minEmployees && maxEmployees){
+      queryVariables.push(+minEmployees, +maxEmployees);
+      whereClauses.push(`num_employees BETWEEN $${queryVariables.length-1} AND $${queryVariables.length}`);
+    }
+
+    baseQuery += 'WHERE ' + whereClauses.join(' AND ') + ' ORDER BY name;';
+
+    console.log(baseQuery, queryVariables);
+
+    const companiesRes = await db.query(baseQuery, queryVariables);
+    
     return companiesRes.rows;
   }
 
