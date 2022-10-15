@@ -87,6 +87,25 @@ describe("findAll", function () {
   });
 });
 
+
+/************************************** findAll with filtering */
+
+describe("findAll", function () {
+  test("works with name filter", async function () {
+    let companies = await Company.findAll('anderson');
+    console.log(companies)
+    expect(companies).toEqual([
+      {
+        handle: "anderson-arias-morrow",
+        name: "Anderson, Arias and Morrow",
+        description: "Somebody program how I. Face give away discussion view act inside. Your official relationship administration here.",
+        numEmployees: 245,
+        logoUrl: "/logos/logo3.png",
+      }
+    ]);
+  });
+});
+
 /************************************** get */
 
 describe("get", function () {

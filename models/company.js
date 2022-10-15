@@ -51,6 +51,10 @@ class Company {
    * */
 
   static async findAll({name, minEmployees, maxEmployees}) {
+    name = name || '';
+    minEmployees = minEmployees || null;
+    maxEmployees = maxEmployees || null;
+    
     if (+minEmployees > +maxEmployees){
       throw new ExpressError('min cannot be bigger than max', 404);
     }
@@ -85,7 +89,11 @@ class Company {
       whereClauses.push(`num_employees BETWEEN $${queryVariables.length-1} AND $${queryVariables.length}`);
     }
 
-    baseQuery += 'WHERE ' + whereClauses.join(' AND ') + ' ORDER BY name;';
+    if (whereClauses.length>0){
+      baseQuery += 'WHERE ' + whereClauses.join(' AND ')
+    }
+
+    baseQuery += ' ORDER BY name';
 
     console.log(baseQuery, queryVariables);
 
