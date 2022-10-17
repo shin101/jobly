@@ -41,7 +41,7 @@ describe("create", function () {
         description: "New Description",
         num_employees: 1,
         logo_url: "http://new.img",
-      },
+      },  
     ]);
   });
 
@@ -60,7 +60,7 @@ describe("create", function () {
 
 describe("findAll", function () {
   test("works: no filter", async function () {
-    let companies = await Company.findAll();
+    let companies = await Company.findAll({});
     expect(companies).toEqual([
       {
         handle: "c1",
@@ -92,19 +92,19 @@ describe("findAll", function () {
 
 describe("findAll", function () {
   test("works with name filter", async function () {
-    let companies = await Company.findAll('anderson');
-    console.log(companies)
+    let companies = await Company.findAll({name: '1'});
     expect(companies).toEqual([
       {
-        handle: "anderson-arias-morrow",
-        name: "Anderson, Arias and Morrow",
-        description: "Somebody program how I. Face give away discussion view act inside. Your official relationship administration here.",
-        numEmployees: 245,
-        logoUrl: "/logos/logo3.png",
+        handle: "c1",
+        name: "C1",
+        description: "Desc1",
+        numEmployees: 1,
+        logoUrl: "http://c1.img",
       }
     ]);
   });
 });
+
 
 /************************************** get */
 
@@ -117,6 +117,12 @@ describe("get", function () {
       description: "Desc1",
       numEmployees: 1,
       logoUrl: "http://c1.img",
+      jobs: [{
+        equity: "0",
+        id: expect.any(Number),
+        salary: 110000,
+        title: "Conservator, furniture",
+      }],
     });
   });
 
