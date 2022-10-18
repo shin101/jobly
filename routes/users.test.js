@@ -13,6 +13,7 @@ const {
   commonAfterAll,
   u1Token,
   adminToken,
+  JobId
 } = require("./_testCommon");
 
 beforeAll(commonBeforeAll);
@@ -110,7 +111,21 @@ describe("POST /users", function () {
         .set("authorization", `Bearer ${adminToken}`);
     expect(resp.statusCode).toEqual(400);
   });
-});
+
+  test("allowing users to apply for jobs", async function () {
+    const res = await db.query("SELECT * FROM jobs")
+    const JobId = res.rows[0].id;
+
+    const resp = await request(app)
+        .post(`/users/u1/jobs/${JobId}`)
+        .set("authorization", `Bearer ${adminToken}`);
+    
+    expect(resp.body).toEqual({ applied: `${JobId}` });
+
+    });
+  });
+
+
 
 /************************************** GET /users */
 
@@ -179,6 +194,7 @@ describe("GET /users/:username", function () {
         lastName: "U1L",
         email: "user1@user.com",
         isAdmin: false,
+        jobs: []
       },
     });
   });

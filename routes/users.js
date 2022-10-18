@@ -45,6 +45,19 @@ router.post("/", ensureAdmin, async function (req, res, next) {
   }
 });
 
+// allowing users to apply for jobs
+router.post("/:username/jobs/:id", async function (req, res, next) {
+  try {
+    await User.apply(req.params.username, +req.params.id);
+    return res.json({ applied: req.params.id });
+
+  } catch (err) {
+    return next(err);
+  }
+});
+
+
+
 
 /** GET / => { users: [ {username, firstName, lastName, email }, ... ] }
  *
@@ -78,6 +91,7 @@ router.get("/:username", ensureAdmin, async function (req, res, next) {
     return next(err);
   }
 });
+
 
 
 /** PATCH /[username] { user } => { user }
